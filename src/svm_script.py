@@ -94,9 +94,15 @@ y = iris.target
 X = X[y != 0, :2]
 y = y[y != 0]
 
+# Vérification des tailles
+#print("Taille de X :", X.shape)
+#print("Taille de y :", y.shape)
+
 # split train test
 X, y = shuffle(X, y)
-# ... TODO
+# Séparation des données en ensemble d'entraînement et de test (50% pour chaque)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.5, random_state=42)
+
 ###############################################################################
 # fit the model with linear vs polynomial kernel
 ###############################################################################
@@ -104,16 +110,23 @@ X, y = shuffle(X, y)
 #%%
 # Q1 Linear kernel
 
-# fit the model
+# Définition des paramètres pour le noyau linéaire
 parameters = {'kernel': ['linear'], 'C': list(np.logspace(-3, 3, 200))}
-# ... TODO
-clf_linear = # ... TODO
 
-# compute the score
-# ... TODO
+# Recherche sur grille pour trouver le meilleur paramètre C
+clf_linear = GridSearchCV(SVC(), parameters, n_jobs=-1)
+clf_linear.fit(X_train, y_train)
 
-print('Generalization score for linear kernel: %s, %s' %
-      (clf_linear.score(X_train, y_train),
+# Affichage du meilleur paramètre trouvé
+print('Best parameters for linear kernel:', clf_linear.best_params_)
+
+# Calcul du score sur les ensembles d'entraînement et de test
+train_score = clf_linear.score(X_train, y_train)
+test_score = clf_linear.score(X_test, y_test)
+
+# Affichage du score
+print('Generalization score for linear kernel: %s (train), %s (test)' % 
+      (clf_linear.score(X_train, y_train), 
        clf_linear.score(X_test, y_test)))
 
 #%%
@@ -123,12 +136,16 @@ gammas = 10. ** np.arange(1, 2)
 degrees = np.r_[1, 2, 3]
 
 parameters = {'kernel': ['poly'], 'C': Cs, 'gamma': gammas, 'degree': degrees}
-# ... TODO
-clf_poly = # ... TODO
-# ... TODO
 
-print(clf_grid.best_params_)
-print('Generalization score for polynomial kernel: %s, %s' %
+# Recherche sur grille pour le noyau polynomial
+clf_poly = GridSearchCV(SVC(), parameters, n_jobs=-1)
+clf_poly.fit(X_train, y_train)
+
+# Affichage du meilleur paramètre trouvé
+print('Best parameters for polynomial kernel:', clf_poly.best_params_)
+
+# Affichage du score
+print('Generalization score for polynomial kernel: %s (train), %s (test)' % 
       (clf_poly.score(X_train, y_train),
        clf_poly.score(X_test, y_test)))
 
@@ -183,7 +200,7 @@ of the "Labeled Faces in the Wild", aka LFW_:
 
   _LFW: http://vis-www.cs.umass.edu/lfw/
 """
-
+#%%
 ####################################################################
 # Download the data and unzip; then load it as numpy arrays
 lfw_people = fetch_lfw_people(min_faces_per_person=70, resize=0.4,
@@ -197,7 +214,7 @@ n_samples, h, w, n_colors = images.shape
 
 # the label to predict is the id of the person
 target_names = lfw_people.target_names.tolist()
-
+#%%
 ####################################################################
 # Pick a pair to classify such as
 names = ['Tony Blair', 'Colin Powell']
@@ -207,7 +224,11 @@ idx0 = (lfw_people.target == target_names.index(names[0]))
 idx1 = (lfw_people.target == target_names.index(names[1]))
 images = np.r_[images[idx0], images[idx1]]
 n_samples = images.shape[0]
-y = np.r_[np.zeros(np.sum(idx0)), np.ones(np.sum(idx1))].astype(np.int)
+y = np.r_[np.zeros(np.sum(idx0)), np.ones(np.sum(idx1))].astype(int)
+
+# Vérification des tailles après filtrage
+print("Taille des images :", images.shape)
+print("Taille de y :", y.shape)
 
 # plot a sample set of the data
 plot_gallery(images, np.arange(12))
@@ -316,7 +337,8 @@ def run_svm_cv(_X, _y):
           (_clf_linear.score(_X_train, _y_train), _clf_linear.score(_X_test, _y_test)))
 
 print("Score sans variable de nuisance")
-# TODO ... use run_svm_cv on data
+# Utilisation de la fonction run_svm_cv sur les données d'origine
+run_svm_cv(X, y)
 
 print("Score avec variable de nuisance")
 n_features = X.shape[1]
@@ -325,7 +347,8 @@ sigma = 1
 noise = sigma * np.random.randn(n_samples, 300, )
 X_noisy = np.concatenate((X, noise), axis=1)
 X_noisy = X_noisy[np.random.permutation(X.shape[0])]
-# TODO ... use run_svm_cv on noisy data
+# Utilisation de la fonction run_svm_cv sur les données avec bruit
+run_svm_cv(X_noisy, y)
 
 #%%
 # Q5
