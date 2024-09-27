@@ -2,6 +2,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.svm import SVC
+import sys
+from pathlib import Path
 
 from svm_source import *
 from sklearn import svm
@@ -101,7 +103,7 @@ y = y[y != 0]
 # split train test
 X, y = shuffle(X, y)
 # Séparation des données en ensemble d'entraînement et de test (50% pour chaque)
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.5, random_state=42)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.5, random_state=42) # Modified to split the data
 
 ###############################################################################
 # fit the model with linear vs polynomial kernel
@@ -114,15 +116,8 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.5, random_
 parameters = {'kernel': ['linear'], 'C': list(np.logspace(-3, 3, 200))}
 
 # Recherche sur grille pour trouver le meilleur paramètre C
-clf_linear = GridSearchCV(SVC(), parameters, n_jobs=-1)
+clf_linear = GridSearchCV(SVC(), parameters, cv=5) # Modified to use GridSearchCV for tuning C
 clf_linear.fit(X_train, y_train)
-
-# Affichage du meilleur paramètre trouvé
-print('Best parameters for linear kernel:', clf_linear.best_params_)
-
-# Calcul du score sur les ensembles d'entraînement et de test
-train_score = clf_linear.score(X_train, y_train)
-test_score = clf_linear.score(X_test, y_test)
 
 # Affichage du score
 print('Generalization score for linear kernel: %s (train), %s (test)' % 
@@ -138,7 +133,7 @@ degrees = np.r_[1, 2, 3]
 parameters = {'kernel': ['poly'], 'C': Cs, 'gamma': gammas, 'degree': degrees}
 
 # Recherche sur grille pour le noyau polynomial
-clf_poly = GridSearchCV(SVC(), parameters, n_jobs=-1)
+clf_poly = GridSearchCV(SVC(), param_grid=parameters, n_jobs=-1) # Modified to use GridSearchCV for tuning C, gamma, and degree
 clf_poly.fit(X_train, y_train)
 
 # Affichage du meilleur paramètre trouvé
@@ -214,6 +209,7 @@ n_samples, h, w, n_colors = images.shape
 
 # the label to predict is the id of the person
 target_names = lfw_people.target_names.tolist()
+
 #%%
 ####################################################################
 # Pick a pair to classify such as
@@ -276,14 +272,17 @@ t0 = time()
 Cs = 10. ** np.arange(-5, 6)
 scores = []
 for C in Cs:
-    # TODO ...
+    clf = SVC(kernel='linear', C=C)
+    clf.fit(X_train, y_train)
+    scores.append(clf.score(X_train, y_train)) 
 
 ind = np.argmax(scores)
+best_C = Cs[ind]
 print("Best C: {}".format(Cs[ind]))
 
 plt.figure()
 plt.plot(Cs, scores)
-plt.xlabel("Parametres de regularisation C")
+plt.xlabel("Paramètres de régularisation C")
 plt.ylabel("Scores d'apprentissage")
 plt.xscale("log")
 plt.tight_layout()
