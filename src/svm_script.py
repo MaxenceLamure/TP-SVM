@@ -294,7 +294,9 @@ t0 = time()
 
 #%%
 # predict labels for the X_test images with the best classifier
-# clf =  ... TODO
+clf = SVC(kernel='linear', C=best_C)
+clf.fit(X_train, y_train)
+y_pred = clf.predict(X_test)
 
 print("done in %0.3fs" % (time() - t0))
 # The chance level is the accuracy that will be reached when constantly predicting the majority class.
@@ -332,7 +334,7 @@ def run_svm_cv(_X, _y):
     _clf_linear = GridSearchCV(_svr, _parameters)
     _clf_linear.fit(_X_train, _y_train)
 
-    print('Generalization score for linear kernel: %s, %s \n' %
+    print('Generalization score for linear kernel: %s (train), %s (test) \n' %
           (_clf_linear.score(_X_train, _y_train), _clf_linear.score(_X_test, _y_test)))
 
 print("Score sans variable de nuisance")
@@ -355,4 +357,10 @@ print("Score apres reduction de dimension")
 
 n_components = 20  # jouer avec ce parametre
 pca = PCA(n_components=n_components).fit(X_noisy)
-# ... TODO
+X_pca = pca.transform(X_noisy)
+
+# Perform SVM with PCA-transformed data
+print("Score avec PCA")
+run_svm_cv(X_pca, y)
+
+# %%
