@@ -182,6 +182,8 @@ plt.draw()
 # Then, play with the applet : generate various datasets and observe the
 # different classifiers you can obtain by varying the kernel
 
+# Q3 
+# python svm_gui.py
 
 #%%
 ###############################################################################
@@ -263,7 +265,7 @@ images_train, images_test = images[
 # Quantitative evaluation of the model quality on the test set
 
 #%%
-# Q3
+# Q4
 print("--- Linear kernel ---")
 print("Fitting the classifier to the training set")
 t0 = time()
@@ -321,7 +323,7 @@ plt.show()
 
 
 #%%
-# Q4
+# Q5
 
 def run_svm_cv(_X, _y):
     _indices = np.random.permutation(_X.shape[0])
@@ -352,10 +354,26 @@ X_noisy = X_noisy[np.random.permutation(X.shape[0])]
 run_svm_cv(X_noisy, y)
 
 #%%
-# Q5
+# Q6
 print("Score apres reduction de dimension")
 
-n_components = 20  # jouer avec ce parametre
+n_components = 40  # jouer avec ce parametre
+pca = PCA(n_components=n_components).fit(X_noisy)
+X_pca = pca.transform(X_noisy)
+
+# Perform SVM with PCA-transformed data
+print("Score avec PCA")
+run_svm_cv(X_pca, y)
+
+n_components = 80  # jouer avec ce parametre
+pca = PCA(n_components=n_components).fit(X_noisy)
+X_pca = pca.transform(X_noisy)
+
+# Perform SVM with PCA-transformed data
+print("Score avec PCA")
+run_svm_cv(X_pca, y)
+
+n_components = 120  # jouer avec ce parametre
 pca = PCA(n_components=n_components).fit(X_noisy)
 X_pca = pca.transform(X_noisy)
 
