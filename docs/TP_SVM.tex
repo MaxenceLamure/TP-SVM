@@ -21,14 +21,19 @@
 \maketitle
 
 \section{Introduction aux SVM}
-\hspace{7pt} Les Support Vector Machines (SVM) représentent une famille d'algorithmes d'apprentissage supervisé, largement utilisés pour les problèmes de classification et, dans une moindre mesure, de régression. Le principe des SVM repose sur la recherche d'un hyperplan séparateur optimal entre différentes classes de données. Cet hyperplan est défini de manière à maximiser la marge entre les points de chaque classe les plus proches de cette frontière, appelés vecteurs de support.\newline
+\hspace{7pt} Les Support Vector Machines (SVM) représentent une famille d'algorithmes d'apprentissage supervisé, largement utilisés pour les problèmes de classification et, dans une moindre mesure, de régression. Le principe des SVM repose sur la recherche d'un hyperplan séparateur optimal entre différentes classes de données. Cet hyperplan est défini de manière à maximiser la marge entre les points de chaque classe les plus proches de cette frontière, appelés vecteurs de support. La fonction de classification pour un SVM est donnée par :
+\[
+f(x) = \text{sign}\left(\sum_{i=1}^{n} \alpha_i y_i K(x_i, x) + b\right)
+\]
+où \(\alpha_i\) sont les coefficients du modèle, \(y_i\) les labels, \(K(x_i, x)\) est le noyau choisi, et \(b\) est le biais.\newline
+
 
 Dans le cas où les données sont linéairement séparables, le SVM détermine un hyperplan qui maximise la distance entre les vecteurs de support des différentes classes. Cependant, toutes les données ne sont pas toujours linéairement séparables. Pour répondre à cette problématique, les SVM utilisent la méthode du noyau (kernel) qui permet de transformer les données en un espace de dimension supérieure où une séparation linéaire devient possible.\newline
 
 Dans ce TP, nous allons principalement travailler avec deux types de noyaux :
 \begin{itemize}
-    \item Linéaire : adapté aux données qui peuvent être séparées par une frontière plane.
-    \item Polynomial : utile pour capturer des relations non linéaires en augmentant la complexité de la frontière.
+    \item Cas linéaire, adapté lorsque les données peuvent être séparées par un hyperplan.
+    \item Cas polynomial, utile pour capturer des relations non linéaires en augmentant la complexité de la frontière.
 \end{itemize}
 
 L'objectif de ce travail est de comparer les performances des SVM en fonction des noyaux utilisés et de l'ajustement de leurs hyperparamètres. En modifiant des paramètres comme le paramètre de régularisation ou les paramètres des noyaux, nous chercherons à comprendre comment ces manipulations influencent la qualité de la classification.
@@ -36,20 +41,29 @@ L'objectif de ce travail est de comparer les performances des SVM en fonction de
 \section{Application}
 
 \subsection{Q1 : Noyau linéaire}
-\hspace{7pt} À partir du code donnée en annexe, nous classifions la classe 1 contre la classe 2 en utilisant uniquement les deux premières variables caractéristiques de l'ensemble Iris et un noyau linéaire. Nous séparons équitablement les données d'entraînement et de test en deux échantillons distincts.\newline
-
-L'analyse des résultats montre que le modèle SVM avec un noyau linéaire atteint une précision de 72\% sur les données d'entraînement, mais celle-ci chute légèrement à 68\% sur les données de test, ce qui suggère un problème de généralisation. Cela pourrait indiquer que le modèle est légèrement surentraîné ou qu'il ne capture pas toute la complexité des données.
+\hspace{7pt} À partir du code donnée en annexe, nous classifions la classe 1 contre la classe 2 en utilisant uniquement les deux premières variables caractéristiques de l'ensemble Iris et un noyau linéaire. Nous séparons équitablement les données d'entraînement et de test en deux échantillons distincts. Dans le cas d'un noyau linéaire, la fonction de noyau est définie comme suit :
+\[
+K(x, x') = \langle x, x' \rangle
+\]
+    
+L'analyse des résultats montre que le modèle SVM avec un noyau linéaire atteint un score de 72\% sur les données d'entraînement, mais celui-ci chute légèrement à 68\% sur les données de test, ce qui suggère un problème de généralisation. Cela pourrait indiquer que le modèle est légèrement surentraîné ou qu'il ne capture pas toute la complexité des données.
 
 \subsection{Q2 : Noyau polynomial}
 
-\hspace{7pt} Nous utilisons un noyau polynomial pour comparer ses performances au noyau linéaire. Voici les paramètres optimaux trouvés avec la validation croisée :\\
+\hspace{7pt} Nous utilisons un noyau polynomial pour comparer ses performances au noyau linéaire. Le noyau polynomial, permettant de capturer des relations non linéaires, est donné par :
+\[
+K(x, x') = (\alpha + \beta \langle x, x' \rangle)^\delta, \ \delta > 0
+\]
+    où \(\alpha\), \(\beta\), et \(\delta\) sont des paramètres ajustables.\newline
+    
+Voici les paramètres optimaux trouvés avec la validation croisée :\\
 \{'C': 0.03162277660168379, 'degree': 1, 'gamma': 10.0, 'kernel': 'poly'\}\newline
 
-Le modèle SVM avec un noyau polynomial atteint une \ de 74\% sur les données d'entraînement et 72\% sur les données de test, ce qui suggère une efficacité sensiblement équivalente entre ce modèle et celui avec un noyau linéaire.\newline
+Le modèle SVM avec un noyau polynomial atteint un score de 74\% sur les données d'entraînement et de 72\% sur les données de test, ce qui suggère une efficacité sensiblement équivalente entre ce modèle et celui avec un noyau linéaire.\newline
 
 La Figure \ref{fig:noyaux} met en évidence les frontières de décision obtenues avec un noyau linéaire et un noyau polynomial, ainsi que la distribution des observations selon ces deux modèles.\newline
 
-\begin{figure}[h!]
+\begin{figure}[H]
     \centering
     \includegraphics[width=1\textwidth]{../images/iris.png}
     \caption{\centering Performances des SVM appliqués au jeu de données iris pour un noyau linéaire et polynomial} 
@@ -59,7 +73,12 @@ La Figure \ref{fig:noyaux} met en évidence les frontières de décision obtenue
 
 \subsection{Q3 bonus : SVM GUI}
 
-\hspace{7pt} En diminuant le paramètre $C$ dans un SVM avec un noyau linéaire, on observe que le modèle devient plus tolérant aux erreurs sur les données d'entraînement. Concrètement, cela se traduit par une marge plus large entre les classes, au prix de certaines mauvaises classifications. Le modèle privilégie ainsi une meilleure généralisation, en évitant de se concentrer trop strictement sur chaque point d'entraînement.\newline
+\hspace{7pt} En diminuant le paramètre $C$ dans un SVM avec un noyau linéaire, on observe que le modèle devient plus tolérant aux erreurs sur les données d'entraînement. Concrètement, cela se traduit par une marge plus large entre les classes, au prix de certaines mauvaises classifications. Le modèle privilégie ainsi une meilleure généralisation, en évitant de se concentrer trop strictement sur chaque point d'entraînement.  Ce compromis est représenté par le problème d'optimisation suivant :
+\[
+\min_{w, b, \xi} \frac{1}{2} \|w\|^2 + C \sum_{i=1}^{n} \xi_i
+\]
+sujet aux contraintes \(y_i (\langle w, x_i \rangle + b) \geq 1 - \xi_i\) et \(\xi_i \geq 0\).
+\newline
 
 Dans le cadre d'un jeu de données déséquilibré, comme celui utilisé ici (90\% des points dans une classe et 10\% dans l'autre), une valeur plus faible de $C$ tend à favoriser la classe majoritaire. En effet, la frontière de décision devient moins précise et plus influencée par la majorité des points, ce qui peut entraîner une dégradation de la performance sur la classe minoritaire, avec davantage de points mal classifiés dans cette catégorie.
 
@@ -129,6 +148,9 @@ Ainsi, après un temps de calcul relativement long, on obtient les résultats su
     \item 120 composantes : Generalization score for linear kernel: 0.8631578947368421 (train), 0.5421052631578948 (test) 
 \end{itemize}
 
-On observe une tendance au sur-apprentissage à mesure que le nombre de composantes augmente. En effet, avec 80 et 120 composantes, le score d'entraînement reste élevé, mais le score de test diminue. Cela suggère que le modèle devient trop complexe et s'adapte trop étroitement aux données d'entraînement, au détriment de la généralisation sur des données non vues.\newline
+On observe une tendance au sur-apprentissage à mesure que le nombre de composantes augmente. En effet, avec 80 et 120 composantes, le score d'entraînement reste élevé, mais le score de test diminue. Cela suggère que le modèle devient trop complexe et s'adapte trop étroitement aux données d'entraînement, au détriment de la généralisation sur des données non vues.
+\newline
+
 La réduction du nombre de composantes à 40 permet d'obtenir un meilleur équilibre entre les scores d'entraînement et de test, bien que les scores globaux soient plus faibles que dans les cas avec plus de composantes. Cela montre que l'ACP aide à réduire le bruit et à améliorer la généralisation jusqu'à un certain point. Au-delà d'un certain nombre de composantes, l'ajout de plus de dimensions semble réintroduire du bruit ou rendre le modèle plus sujet au sur-apprentissage.
+
 \end{document}
