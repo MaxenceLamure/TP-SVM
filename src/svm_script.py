@@ -103,7 +103,7 @@ y = y[y != 0]
 # split train test
 X, y = shuffle(X, y)
 # Séparation des données en ensemble d'entraînement et de test (50% pour chaque)
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.5, random_state=42) # Modified to split the data
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.5, random_state=42)
 
 ###############################################################################
 # fit the model with linear vs polynomial kernel
@@ -116,7 +116,7 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.5, random_
 parameters = {'kernel': ['linear'], 'C': list(np.logspace(-3, 3, 200))}
 
 # Recherche sur grille pour trouver le meilleur paramètre C
-clf_linear = GridSearchCV(SVC(), parameters, cv=5) # Modified to use GridSearchCV for tuning C
+clf_linear = GridSearchCV(SVC(), parameters, cv=5)
 clf_linear.fit(X_train, y_train)
 
 # Affichage du score
@@ -133,7 +133,7 @@ degrees = np.r_[1, 2, 3]
 parameters = {'kernel': ['poly'], 'C': Cs, 'gamma': gammas, 'degree': degrees}
 
 # Recherche sur grille pour le noyau polynomial
-clf_poly = GridSearchCV(SVC(), param_grid=parameters, n_jobs=-1) # Modified to use GridSearchCV for tuning C, gamma, and degree
+clf_poly = GridSearchCV(SVC(), param_grid=parameters, n_jobs=-1)
 clf_poly.fit(X_train, y_train)
 
 # Affichage du meilleur paramètre trouvé

@@ -7,6 +7,17 @@
 \usepackage[utf8]{inputenc}
 \usepackage{float}
 
+\lstset{
+  language=Python,
+  basicstyle=\ttfamily\footnotesize,
+  backgroundcolor=\color{gray!10},
+  frame=single,
+  keywordstyle=\color{blue},
+  commentstyle=\color{green},
+  stringstyle=\color{red},
+  showstringspaces=false
+}
+
 \title{TP N°3 : Support Vector Machine (SVM)}
 
 \author{
@@ -46,7 +57,13 @@ L'objectif de ce travail est de comparer les performances des SVM en fonction de
 K(x, x') = \langle x, x' \rangle
 \]
     
-L'analyse des résultats montre que le modèle SVM avec un noyau linéaire atteint un score de 72\% sur les données d'entraînement, mais celui-ci chute légèrement à 68\% sur les données de test, ce qui suggère un problème de généralisation. Cela pourrait indiquer que le modèle est légèrement surentraîné ou qu'il ne capture pas toute la complexité des données.
+L'analyse des résultats donné par :
+\begin{lstlisting}
+parameters = {'kernel': ['linear'], 'C': list(np.logspace(-3, 3, 200))}
+clf_linear = GridSearchCV(SVC(), parameters, cv=5)
+clf_linear.fit(X_train, y_train)
+\end{lstlisting}
+montre que le modèle SVM avec un noyau linéaire atteint un score de 72\% sur les données d'entraînement, mais celui-ci chute légèrement à 68\% sur les données de test, ce qui suggère un problème de généralisation. Cela pourrait indiquer que le modèle est légèrement surentraîné ou qu'il ne capture pas toute la complexité des données.
 
 \subsection{Q2 : Noyau polynomial}
 
@@ -55,8 +72,15 @@ L'analyse des résultats montre que le modèle SVM avec un noyau linéaire attei
 K(x, x') = (\alpha + \beta \langle x, x' \rangle)^\delta, \ \delta > 0
 \]
     où \(\alpha\), \(\beta\), et \(\delta\) sont des paramètres ajustables.\newline
+
+Le code suivant :
+\begin{lstlisting}
+parameters = {'kernel': ['poly'], 'C': Cs, 'gamma': gammas, 'degree': degrees}
+clf_poly = GridSearchCV(SVC(), param_grid=parameters, n_jobs=-1)
+clf_poly.fit(X_train, y_train)
+\end{lstlisting}
     
-Voici les paramètres optimaux trouvés avec la validation croisée :\\
+Nous permet de trouver les paramètres optimaux avec la validation croisée :\\
 \{'C': 0.03162277660168379, 'degree': 1, 'gamma': 10.0, 'kernel': 'poly'\}\newline
 
 Le modèle SVM avec un noyau polynomial atteint un score de 74\% sur les données d'entraînement et de 72\% sur les données de test, ce qui suggère une efficacité sensiblement équivalente entre ce modèle et celui avec un noyau linéaire.\newline
@@ -86,7 +110,7 @@ Dans le cadre d'un jeu de données déséquilibré, comme celui utilisé ici (90
 
 \hspace{7pt} Pour classifier les visages, nous utilisons l'ensemble de données LFW (Labeled Faces in the Wild) puis nous sélectionnons deux personnes spécifiques (Tony Blair et Colin Powell) dont nous disposons au moins 70 photos et réduisons la taille des images par optimisation d'espace. Nous préparons ensuite les données dont un échantillon se trouve dans la Figure \ref{fig:lfw} pour une tâche de classification binaire.
 
-\begin{figure}[h!]
+\begin{figure}[H]
     \centering
     \includegraphics[width=0.6\textwidth]{../images/TB-CP.png}
     \caption{\centering Echantillon des données LFW} 
@@ -97,7 +121,16 @@ Dans le cadre d'un jeu de données déséquilibré, comme celui utilisé ici (90
 
 \hspace{7pt} Nous étudions l'influence du paramètre de régularisation C en ajustant les valeurs sur une échelle logarithmique entre $10^{-5}$ et $10^5$ et en observant les scores :
 
-\begin{figure}[h!]
+\begin{lstlisting}
+Cs = 10. ** np.arange(-5, 6)
+scores = []
+for C in Cs:
+    clf = SVC(kernel='linear', C=C)
+    clf.fit(X_train, y_train)
+    scores.append(clf.score(X_train, y_train)) 
+\end{lstlisting}
+
+\begin{figure}[H]
     \centering
     \includegraphics[width=0.7\textwidth]{../images/classification.png}
     \caption{\centering Graphe montrant le score d'apprentissage en fonction du paramètre de régularisation C} 
@@ -106,20 +139,39 @@ Dans le cadre d'un jeu de données déséquilibré, comme celui utilisé ici (90
 
 Comme montré dans la Figure \ref{fig:score}, le meilleur paramètre de régularisation est $C = 10^{-3}$, pour un score de 1. Ce score reste le même pour un C plus grand, ce qui montre la stabilité de la classification.\newline
 
-Nous réentraînons à présent le modèle avec ce C optimal et réalisons les prédictions finales sur les données de test. Nous comparons ensuite la précision obtenue à celle attendue d'un modèle prédictif aléatoire, servant de référence pour évaluer les performances.\newline
+Nous réentraînons à présent le modèle avec ce C optimal et réalisons les prédictions finales sur les données de test. Nous comparons ensuite la précision obtenue à celle attendue d'un modèle prédictif aléatoire, servant de référence pour évaluer les performances.
+\begin{lstlisting}
+clf = SVC(kernel='linear', C=best_C)
+clf.fit(X_train, y_train)
+y_pred = clf.predict(X_test)
+
+print("Chance level : %s" % max(np.mean(y), 1. - np.mean(y)))
+print("Accuracy : %s" % clf.score(X_test, y_test))
+\end{lstlisting}
 
 Nous obtenons alors une précision de 91\% et un niveau de chance de 62\%. Le modèle affiche donc une performance nettement meilleure que l'aléatoire, ce qui montre qu'il a bien appris à différencier les classes à partir des données fournies.\newline
 
-Les résultats sont illustrés dans la Figure \ref{fig:prediction}.
+Les résultats sont illustrés dans la Figure \ref{fig:prediction} par le code suivant :
+
+\begin{lstlisting}
+prediction_titles = [title(y_pred[i], y_test[i], names)
+                     for i in range(y_pred.shape[0])]
+
+plot_gallery(images_test, prediction_titles)
+\end{lstlisting}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.5\textwidth]{../images/TB-CPpred.png}
+    \includegraphics[width=0.6\textwidth]{../images/TB-CPpred.png}
     \caption{\centering Echantillon de prédiction du modèle pour les données LFW} 
     \label{fig:prediction}
 \end{figure}
 
 La Figure \ref{fig:cc} présente quant à elle les coefficients du modèle linéaire appris sous forme de carte de chaleur sur une grille bidimensionnelle :
+
+\begin{lstlisting}
+plt.imshow(np.reshape(clf.coef_, (h, w)))
+\end{lstlisting}
 
 \begin{figure}[H]
     \centering
@@ -133,13 +185,42 @@ Les variations de couleurs représentent les différences d'intensité des coeff
 Nous constatons alors que le classifieur se base principalement sur certains éléments tels que l'implantation des cheveux au-dessus du crâne et sur les côtés, les sourcils/yeux, le nez et la bouche pour sa prédiction.
 
 \subsection{Q5 : Variables de nuisance}
-\hspace{7pt} Nous ajoutons ici des variables de nuisance pour évaluer l'impact sur les performances du modèle.\newline
+\hspace{7pt} Nous ajoutons ici des variables de nuisance pour évaluer l'impact sur les performances du modèle dont le score est défini par :\newline
+\begin{lstlisting}
+def run_svm_cv(_X, _y):
+    _indices = np.random.permutation(_X.shape[0])
+    _train_idx, _test_idx = _indices[:_X.shape[0] // 2], _indices[_X.shape[0] // 2:]
+    _X_train, _X_test = _X[_train_idx, :], _X[_test_idx, :]
+    _y_train, _y_test = _y[_train_idx], _y[_test_idx]
 
-Sans variables de nuisance, le modèle atteint un score de 1 pour les données d'entraînement et de 93\% pour les données de test, montrant une très bonne performance et sa capacité à généraliser sur de nouvelles données.\\
-Avec variables de nuisance en revanche, le modèle atteint certes un score de 1 pour les données d'entraînement mais chute significativement à 47\% pour les données de test (inférieur au niveau de chance à 62\%), indiquant une mauvaise robustesse face à de nouvelles données malgré une bonne performance pour les données d'entraînement.
+    _parameters = {'kernel': ['linear'], 'C': list(np.logspace(-3, 3, 5))}
+    _svr = svm.SVC()
+    _clf_linear = GridSearchCV(_svr, _parameters)
+    _clf_linear.fit(_X_train, _y_train)
+
+    print('Generalization score for linear kernel: %s (train), %s (test) \n' %
+          (_clf_linear.score(_X_train, _y_train), _clf_linear.score(_X_test, _y_test)))
+\end{lstlisting}
+
+Sans variables de nuisance, le modèle atteint un score de 1 pour les données d'entraînement et de 93\% pour les données de test, montrant une très bonne performance et sa capacité à généraliser sur de nouvelles données.\newline
+
+Avec variables de nuisance en revanche, défini par :
+
+\begin{lstlisting}
+sigma = 1
+noise = sigma * np.random.randn(n_samples, 300, )
+X_noisy = np.concatenate((X, noise), axis=1)
+X_noisy = X_noisy[np.random.permutation(X.shape[0])]
+\end{lstlisting}
+
+le modèle atteint certes un score de 1 pour les données d'entraînement mais chute significativement à 47\% pour les données de test (inférieur au niveau de chance à 62\%), indiquant une mauvaise robustesse face à de nouvelles données malgré une bonne performance pour les données d'entraînement.
 
 \subsection{Q6 : Réduction de dimensions ACP}
-\hspace{7pt} Après avoir analysé l'impact des variables de nuisance sur les performances du modèle, il peut être utile d'étudier une autre technique de prétraitement des données : la réduction de dimensions. Grâce à l'Analyse en Composantes Principales (ACP), l'objectif est de diminuer le nombre de variables tout en conservant un maximum d'information. Cette approche peut améliorer la performance du modèle en éliminant le bruit et en simplifiant la structure des données. Nous appliquerons donc l'ACP sur les données bruitées pour évaluer son effet sur la précision du modèle SVM, en testant trois scénarios : avec 40, 80 et 120 composantes.\newline
+\hspace{7pt} Après avoir analysé l'impact des variables de nuisance sur les performances du modèle, il peut être utile d'étudier une autre technique de prétraitement des données : la réduction de dimensions. Grâce à l'Analyse en Composantes Principales (ACP), l'objectif est de diminuer le nombre de variables tout en conservant un maximum d'information. Cette approche peut améliorer la performance du modèle en éliminant le bruit et en simplifiant la structure des données. Nous appliquerons donc l'ACP sur les données bruitées pour évaluer son effet sur la précision du modèle SVM, en testant trois scénarios : 40, 80 et 120 composantes. Le code correspondant à l'application de l'ACP est le suivant :
+\begin{lstlisting}
+pca = PCA(n_components=n_components).fit(X_noisy)
+X_pca = pca.transform(X_noisy)
+\end{lstlisting}
 
 Ainsi, après un temps de calcul relativement long, on obtient les résultats suivants :
 \begin{itemize}
