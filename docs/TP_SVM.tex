@@ -80,7 +80,7 @@ clf_poly = GridSearchCV(SVC(), param_grid=parameters, n_jobs=-1)
 clf_poly.fit(X_train, y_train)
 \end{lstlisting}
     
-Nous permet de trouver les paramètres optimaux avec la validation croisée :\\
+nous permet de trouver les paramètres optimaux avec la validation croisée :\\
 \{'C': 0.03162277660168379, 'degree': 1, 'gamma': 10.0, 'kernel': 'poly'\}\newline
 
 Le modèle SVM avec un noyau polynomial atteint un score de 74\% sur les données d'entraînement et de 72\% sur les données de test, ce qui suggère une efficacité sensiblement équivalente entre ce modèle et celui avec un noyau linéaire.\newline
@@ -185,7 +185,7 @@ Les variations de couleurs représentent les différences d'intensité des coeff
 Nous constatons alors que le classifieur se base principalement sur certains éléments tels que l'implantation des cheveux au-dessus du crâne et sur les côtés, les sourcils/yeux, le nez et la bouche pour sa prédiction.
 
 \subsection{Q5 : Variables de nuisance}
-\hspace{7pt} Nous ajoutons ici des variables de nuisance pour évaluer l'impact sur les performances du modèle dont le score est défini par :\newline
+\hspace{7pt} Nous ajoutons ici des variables de nuisance pour évaluer l'impact sur les performances du modèle dont le score est calculé par la fonction suivante :\newline
 \begin{lstlisting}
 def run_svm_cv(_X, _y):
     _indices = np.random.permutation(_X.shape[0])
@@ -204,7 +204,7 @@ def run_svm_cv(_X, _y):
 
 Sans variables de nuisance, le modèle atteint un score de 1 pour les données d'entraînement et de 93\% pour les données de test, montrant une très bonne performance et sa capacité à généraliser sur de nouvelles données.\newline
 
-Avec variables de nuisance en revanche, défini par :
+Avec variables de nuisance en revanche, calculé selon :
 
 \begin{lstlisting}
 sigma = 1
@@ -224,9 +224,18 @@ X_pca = pca.transform(X_noisy)
 
 Ainsi, après un temps de calcul relativement long, on obtient les résultats suivants :
 \begin{itemize}
-    \item 40 composantes : Generalization score for linear kernel: 0.7473684210526316 (train), 0.5684210526315789 (test) 
-    \item 80 composantes : Generalization score for linear kernel: 0.868421052631579 (train), 0.4789473684210526 (test) 
-    \item 120 composantes : Generalization score for linear kernel: 0.8631578947368421 (train), 0.5421052631578948 (test) 
+    \item 40 composantes : 
+    \begin{lstlisting}
+    0.7473684210526316 (train), 0.5684210526315789 (test) 
+    \end{lstlisting}
+    \item 80 composantes :
+    \begin{lstlisting}
+    0.868421052631579 (train), 0.4789473684210526 (test) 
+    \end{lstlisting}
+    \item 120 composantes : 
+    \begin{lstlisting}
+    0.8631578947368421 (train), 0.5421052631578948 (test) 
+    \end{lstlisting}
 \end{itemize}
 
 On observe une tendance au sur-apprentissage à mesure que le nombre de composantes augmente. En effet, avec 80 et 120 composantes, le score d'entraînement reste élevé, mais le score de test diminue. Cela suggère que le modèle devient trop complexe et s'adapte trop étroitement aux données d'entraînement, au détriment de la généralisation sur des données non vues.
