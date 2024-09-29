@@ -5,6 +5,7 @@
 \usepackage{xcolor}
 \usepackage{hyperref}
 \usepackage[utf8]{inputenc}
+\usepackage{float}
 
 \title{TP N°3 : Support Vector Machine (SVM)}
 
@@ -46,9 +47,15 @@ L'analyse des résultats montre que le modèle SVM avec un noyau linéaire attei
 
 Le modèle SVM avec un noyau polynomial atteint une \ de 74\% sur les données d'entraînement et 72\% sur les données de test, ce qui suggère une efficacité sensiblement équivalente entre ce modèle et celui avec un noyau linéaire.\newline
 
-Voici une illustration comparative des performances des SVM appliqués au jeu de données Iris, mettant en évidence les frontières de décision obtenues avec un noyau linéaire et un noyau polynomial, ainsi que la distribution des observations selon ces deux modèles.\newline
+La Figure \ref{fig:noyaux} met en évidence les frontières de décision obtenues avec un noyau linéaire et un noyau polynomial, ainsi que la distribution des observations selon ces deux modèles.\newline
 
-\includegraphics[width=1\textwidth]{../images/iris.png}
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=1\textwidth]{../images/iris.png}
+    \caption{\centering Performances des SVM appliqués au jeu de données iris pour un noyau linéaire et polynomial} 
+    \label{fig:noyaux}
+\end{figure}
+
 
 \subsection{Q3 bonus : SVM GUI}
 
@@ -58,36 +65,49 @@ Dans le cadre d'un jeu de données déséquilibré, comme celui utilisé ici (90
 
 \section{Classification de visages}
 
-\hspace{7pt} Pour classifier les visages, nous utilisons l'ensemble de données LFW (Labeled Faces in the Wild) puis nous sélectionnons deux personnes spécifiques (Tony Blair et Colin Powell) dont nous disposons au moins 70 photos et réduisons la taille des images par optimisation d'espace. Nous préparons ensuite les données pour une tâche de classification binaire. Un échantillon des images donne ceci :
+\hspace{7pt} Pour classifier les visages, nous utilisons l'ensemble de données LFW (Labeled Faces in the Wild) puis nous sélectionnons deux personnes spécifiques (Tony Blair et Colin Powell) dont nous disposons au moins 70 photos et réduisons la taille des images par optimisation d'espace. Nous préparons ensuite les données dont un échantillon se trouve dans la Figure \ref{fig:lfw} pour une tâche de classification binaire.
 
-\begin{center}
+\begin{figure}[h!]
+    \centering
     \includegraphics[width=0.6\textwidth]{../images/TB-CP.png}
-\end{center}
+    \caption{\centering Echantillon des données LFW} 
+    \label{fig:lfw}
+\end{figure}
 
 \subsection{Q4 : Paramètre de régularisation}
-\hspace{7pt} Nous étudions l'influence du paramètre de régularisation C en ajustant les valeurs sur une échelle logarithmique entre $10^{-5}$ et $10^5$ et en observant les scores :\newline
 
-Le meilleur paramètre de régularisation est $C = 10^{-3}$, pour un score de 1. Ce score reste le même pour un C plus grand, ce qui montre la stabilité de la classification.\newline
+\hspace{7pt} Nous étudions l'influence du paramètre de régularisation C en ajustant les valeurs sur une échelle logarithmique entre $10^{-5}$ et $10^5$ et en observant les scores :
 
-\begin{center}
+\begin{figure}[h!]
+    \centering
     \includegraphics[width=0.7\textwidth]{../images/classification.png}
-\end{center}
+    \caption{\centering Graphe montrant le score d'apprentissage en fonction du paramètre de régularisation C} 
+    \label{fig:score}
+\end{figure}
+
+Comme montré dans la Figure \ref{fig:score}, le meilleur paramètre de régularisation est $C = 10^{-3}$, pour un score de 1. Ce score reste le même pour un C plus grand, ce qui montre la stabilité de la classification.\newline
 
 Nous réentraînons à présent le modèle avec ce C optimal et réalisons les prédictions finales sur les données de test. Nous comparons ensuite la précision obtenue à celle attendue d'un modèle prédictif aléatoire, servant de référence pour évaluer les performances.\newline
 
 Nous obtenons alors une précision de 91\% et un niveau de chance de 62\%. Le modèle affiche donc une performance nettement meilleure que l'aléatoire, ce qui montre qu'il a bien appris à différencier les classes à partir des données fournies.\newline
 
-Les résultats sont illustrés dans cet échantillon d'images :
+Les résultats sont illustrés dans la Figure \ref{fig:prediction}.
 
-\begin{center}
-    \includegraphics[width=0.6\textwidth]{../images/TB-CPpred.png}
-\end{center}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\textwidth]{../images/TB-CPpred.png}
+    \caption{\centering Echantillon de prédiction du modèle pour les données LFW} 
+    \label{fig:prediction}
+\end{figure}
 
-Cette seconde image présente les coefficients du modèle linéaire appris sous forme de carte de chaleur sur une grille bidimensionnelle :
+La Figure \ref{fig:cc} présente quant à elle les coefficients du modèle linéaire appris sous forme de carte de chaleur sur une grille bidimensionnelle :
 
-\begin{center}
-    \includegraphics[width=0.6\textwidth]{../images/cc.png}
-\end{center}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\textwidth]{../images/cc.png}
+    \caption{\centering Coefficients du modèle linéaire appris sous forme de carte de chaleur} 
+    \label{fig:cc}
+\end{figure}
 
 Les variations de couleurs représentent les différences d'intensité des coefficients ou des données dans cette grille. Typiquement, des zones plus claires indiquent des valeurs plus élevées, tandis que des zones plus sombres signalent des valeurs plus faibles.\newline
 
