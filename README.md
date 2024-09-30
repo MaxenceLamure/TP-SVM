@@ -42,3 +42,8 @@ Pour cloner le dépôt, exécutez la commande suivante :
 
 ```bash
 git clone git@github.com:MaxenceLamure/TP_SVM.git
+```
+
+## Auteur
+
+[Maxence Lamure](https://github.com/MaxenceLamure)
