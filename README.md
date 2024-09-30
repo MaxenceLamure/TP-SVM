@@ -21,7 +21,7 @@ Le dossier `docs` contient les fichiers suivants :
 - `TP_SVM.tex` : le fichier `.tex` du rapport
 - `TP_SVM.pdf` : le rapport au format PDF
 
-Le dossier `outputs` contient les images nécessaires à la compilation du rapport.
+Le dossier `images` contient les images nécessaires à la compilation du rapport.
 
 ## Prérequis
 
