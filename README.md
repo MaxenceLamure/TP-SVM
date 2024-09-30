@@ -41,7 +41,7 @@ Un compilateur LaTeX est également requis pour générer le fichier PDF du rapp
 Pour cloner le dépôt, exécutez la commande suivante :
 
 ```bash
-git clone git@github.com:MaxenceLamure/TP_SVM.git
+git clone git@github.com:MaxenceLamure/TP-SVM.git
 ```
 
 ## Auteur
