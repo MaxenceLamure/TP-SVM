@@ -1,4 +1,4 @@
-# TP3 : Support Vector Machines (SVM)
+# TP : Support Vector Machines (SVM)
 
 ## Description
 
